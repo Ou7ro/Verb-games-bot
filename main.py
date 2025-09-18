@@ -1,7 +1,9 @@
 from logger import setup_logger
 from environs import env
-from telegram import Update, ForceReply
+from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from google.cloud import dialogflow
+from google.oauth2 import service_account
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -16,13 +18,31 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Help!')
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+def handle_message(update: Update, context: CallbackContext):
+    user_message = update.message.text
+    user_id = update.message.from_user.id
+
+    try:
+        credentials = service_account.Credentials.from_service_account_file(
+            'credentials.json',
+            scopes=['https://www.googleapis.com/auth/cloud-platform']
+        )
+        session_client = dialogflow.SessionsClient(credentials=credentials)
+
+        session = session_client.session_path(env.str('DIALOGFLOW_PROJECT_ID'), user_id)
+
+        text_input = dialogflow.TextInput(text=user_message, language_code='ru')
+        query_input = dialogflow.QueryInput(text=text_input)
+        response = session_client.detect_intent(
+            request={"session": session, "query_input": query_input}
+        )
+        bot_response = response.query_result.fulfillment_text
+        update.message.reply_text(bot_response)
+    except Exception as e:
+        pass
 
 
 def main() -> None:
-    """Start the bot."""
     env.read_env()
     tg_bot_token = env.str('TG_BOT_TOKEN')
 
@@ -33,7 +53,7 @@ def main() -> None:
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
     updater.start_polling()
     updater.idle()
 
