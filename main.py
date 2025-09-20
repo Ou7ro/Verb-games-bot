@@ -21,6 +21,7 @@ def help_command(update: Update, context: CallbackContext) -> None:
 def handle_message(update: Update, context: CallbackContext):
     user_message = update.message.text
     user_id = update.message.from_user.id
+    project_id = env.str('DIALOGFLOW_PROJECT_ID')
 
     try:
         credentials = service_account.Credentials.from_service_account_file(
@@ -29,7 +30,7 @@ def handle_message(update: Update, context: CallbackContext):
         )
         session_client = dialogflow.SessionsClient(credentials=credentials)
 
-        session = session_client.session_path(env.str('DIALOGFLOW_PROJECT_ID'), user_id)
+        session = session_client.session_path(project_id, user_id)
 
         text_input = dialogflow.TextInput(text=user_message, language_code='ru')
         query_input = dialogflow.QueryInput(text=text_input)
