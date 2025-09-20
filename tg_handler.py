@@ -43,7 +43,7 @@ def handle_message(update: Update, context: CallbackContext):
         pass
 
 
-def main() -> None:
+if __name__ == '__main__':
     env.read_env()
     tg_bot_token = env.str('TG_BOT_TOKEN')
 
@@ -57,7 +57,3 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
     updater.start_polling()
     updater.idle()
-
-
-if __name__ == '__main__':
-    main()
