@@ -17,13 +17,10 @@ def create_intent(file_name, project_id):
         parent = dialogflow.AgentsClient.agent_path(project_id)
         training_phrases = []
         for training_phrases_part in training_phrases_parts:
-            # Преобразует список с ответами в объект Part
             part = dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part)
-            # Преобразует список с ответами в объект TrainingPhrase
             training_phrase = dialogflow.Intent.TrainingPhrase(parts=[part])
             training_phrases.append(training_phrase)
 
-        # Обязательно принимает лишь список иначе будет перебирать посимвольно
         text = dialogflow.Intent.Message.Text(text=messages)
         message = dialogflow.Intent.Message(text=text)
 
@@ -34,8 +31,6 @@ def create_intent(file_name, project_id):
         response = intents_client.create_intent(
             request={"parent": parent, "intent": intent}
         )
-
-        print("Intent created: {}".format(response))
 
 
 if __name__ == '__main__':

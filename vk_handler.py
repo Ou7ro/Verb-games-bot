@@ -1,25 +1,19 @@
 from vk_api.longpoll import VkLongPoll, VkEventType
-from environs import env
+from logger import setup_logger
 import random
+from environs import env
 import vk_api as vk
 from google.cloud import dialogflow
 from google.oauth2 import service_account
 
 
-def echo(event, vk_api):
-    vk_api.messages.send(
-        user_id=event.user_id,
-        message=event.text,
-        random_id=random.randint(1,1000)
-    )
+logger = setup_logger()
 
 
-def handle_message(event, vk_api):
-    project_id = env.str('DIALOGFLOW_PROJECT_ID')
-
+def handle_message(event, vk_api, project_id, aplication_path):
     try:
         credentials = service_account.Credentials.from_service_account_file(
-            'credentials.json',
+            aplication_path,
             scopes=['https://www.googleapis.com/auth/cloud-platform']
         )
         session_client = dialogflow.SessionsClient(credentials=credentials)
@@ -39,15 +33,26 @@ def handle_message(event, vk_api):
                 random_id=random.randint(1,1000)
             )
     except Exception as e:
-        pass
+        logger.error(f"Error in VK handler: {e}")
 
 
-if __name__ == "__main__":
+def run_vk_bot():
+    logger.info('Запуск VK бота')
     env.read_env()
     vk_token = env.str('VK_TOKEN_BOT')
+    project_id = env.str('DIALOGFLOW_PROJECT_ID')
+    aplication_path = env.str('GOOGLE_APPLICATION_PATH')
+
     vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            handle_message(event, vk_api)
+    try:
+        for event in longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                handle_message(event, vk_api, project_id, aplication_path)
+    except Exception as e:
+        logger.error(f"VK bot error: {e}")
+
+
+if __name__ == "__main__":
+    run_vk_bot()
