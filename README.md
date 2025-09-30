@@ -95,3 +95,7 @@ python learning_script.py путь/к/файлу.json
 ```
 
 После выполнения скрипта интенты появятся в вашем агенте DialogFlow и будут доступны для использования ботами.
+
+### Пример работы
+
+![Пример использования плеера](https://github.com/user-attachments/assets/3cdd2e16-595d-47ef-be6d-cd7ef0e3c572)
