@@ -22,22 +22,23 @@ def handle_message(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     project_id = env.str('DIALOGFLOW_PROJECT_ID')
     aplication_path = env.str('GOOGLE_APPLICATION_PATH')
+    credentials = service_account.Credentials.from_service_account_file(
+        aplication_path,
+        scopes=['https://www.googleapis.com/auth/cloud-platform']
+    )
+    session_client = dialogflow.SessionsClient(credentials=credentials)
+    session = session_client.session_path(project_id, user_id)
     try:
-        credentials = service_account.Credentials.from_service_account_file(
-            aplication_path,
-            scopes=['https://www.googleapis.com/auth/cloud-platform']
-        )
-        session_client = dialogflow.SessionsClient(credentials=credentials)
-        session = session_client.session_path(project_id, user_id)
         text_input = dialogflow.TextInput(text=user_message, language_code='ru')
         query_input = dialogflow.QueryInput(text=text_input)
         response = session_client.detect_intent(
             request={"session": session, "query_input": query_input}
         )
         bot_response = response.query_result.fulfillment_text
-        update.message.reply_text(bot_response)
     except Exception as e:
-        logger.error(f'Error in Telegram handler: {e}')
+        logger.error(f'Error with Dialogflow: {e}')
+
+    update.message.reply_text(bot_response)
 
 
 def run_telegram_bot():
