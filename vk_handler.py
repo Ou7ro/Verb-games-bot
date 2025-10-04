@@ -5,9 +5,10 @@ from environs import env
 import vk_api as vk
 from google.cloud import dialogflow
 from google.oauth2 import service_account
+import logging
 
 
-logger = setup_logger()
+logger = logging.getLogger(__name__)
 
 
 def handle_message(event, vk_api, project_id, aplication_path):
@@ -37,6 +38,7 @@ def handle_message(event, vk_api, project_id, aplication_path):
 
 
 def run_vk_bot():
+    setup_logger()
     logger.info('Запуск VK бота')
     vk_token = env.str('VK_TOKEN_BOT')
     project_id = env.str('DIALOGFLOW_PROJECT_ID')

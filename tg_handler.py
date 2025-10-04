@@ -1,3 +1,4 @@
+import logging
 from logger import setup_logger
 from environs import env
 from telegram import Update
@@ -6,7 +7,7 @@ from google.cloud import dialogflow
 from google.oauth2 import service_account
 
 
-logger = setup_logger()
+logger = logging.getLogger(__name__)
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -40,8 +41,8 @@ def handle_message(update: Update, context: CallbackContext):
 
 
 def run_telegram_bot():
+    setup_logger()
     logger.info('Запуск Telegram бота')
-
     tg_bot_token = env.str('TG_BOT_TOKEN')
     try:
         updater = Updater(tg_bot_token)
