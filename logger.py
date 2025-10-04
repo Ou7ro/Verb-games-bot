@@ -6,13 +6,12 @@ from environs import env
 class TelegramLogsHandler(logging.Handler):
     def __init__(self, tg_token: str, tg_chat_id: str):
         super().__init__()
-        self.tg_token = tg_token
+        self.tg_bot = Bot(token=tg_token)
         self.tg_chat_id = tg_chat_id
 
     def emit(self, record):
         log_entry = self.format(record)
-        bot = Bot(token=self.tg_token)
-        bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
+        self.tg_bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
 
 
 def setup_logger():
