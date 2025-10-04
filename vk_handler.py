@@ -38,7 +38,6 @@ def handle_message(event, vk_api, project_id, aplication_path):
 
 def run_vk_bot():
     logger.info('Запуск VK бота')
-    env.read_env()
     vk_token = env.str('VK_TOKEN_BOT')
     project_id = env.str('DIALOGFLOW_PROJECT_ID')
     aplication_path = env.str('GOOGLE_APPLICATION_PATH')
@@ -54,5 +53,10 @@ def run_vk_bot():
         logger.error(f"VK bot error: {e}")
 
 
-if __name__ == "__main__":
+def main():
+    env.read_env()
     run_vk_bot()
+
+
+if __name__ == "__main__":
+    main()

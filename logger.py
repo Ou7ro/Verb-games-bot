@@ -15,9 +15,6 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def setup_logger():
-
-    env.read_env()
-
     logger = logging.getLogger(__name__)
 
     if logger.handlers:

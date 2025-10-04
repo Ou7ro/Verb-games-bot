@@ -54,5 +54,10 @@ def run_telegram_bot():
         logger.error(f'Telegram bot error: {e}')
 
 
-if __name__ == '__main__':
+def main():
+    env.read_env()
     run_telegram_bot()
+
+
+if __name__ == '__main__':
+    main()
